@@ -1,12 +1,13 @@
+//accepting(asyncHandler) as a function and returning as a function
 const asyncHandler = (requestHandler) =>{
-   (req,res , next) =>{
+   return (req,res , next) =>{
     Promise.resolve(requestHandler(req,res,next))
     .catch((err)=> next(err))
    }  // chatgpt of promise.resolve later
 } 
 
 //export {asyncHandler}
-module.exports = {asyncHandler}
+module.exports = asyncHandler
 
 //---------------------------
 
