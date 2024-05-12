@@ -8,7 +8,7 @@ const app = require("./app.js")
 const connectDB = require("./db/index.js")
 
 dotenv.config({
-    path:'./env'
+    path:'./.env'
 })
 
 connectDB()
@@ -17,7 +17,7 @@ connectDB()
       if(err)
         console.log("errored occured in listening : ",err);
       else
-         console.log(`Server is running at port :  8000    `);//${process.env.PORT}`);
+         console.log(`Server is running at port : ${process.env.PORT}`);
 
     })
 })
@@ -25,7 +25,7 @@ connectDB()
     console.log("MONGO db connection failed !!! ",err)
 })
 
-
+ 
 
 //simple way  to connect database in index.js page but we choose different way of another folder db
 /*
@@ -52,3 +52,4 @@ const app = express()
     }
 })()
 */
+
