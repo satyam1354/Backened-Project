@@ -17,7 +17,7 @@ connectDB()
       if(err)
         console.log("errored occured in listening : ",err);
       else
-         console.log(`Server is running at port :${process.env.PORT}`);
+         console.log(`Server is running at port :  8000    `);//${process.env.PORT}`);
 
     })
 })
