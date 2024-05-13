@@ -30,3 +30,5 @@ try {
 }
 
 })
+
+module.exports = verifyJWT
