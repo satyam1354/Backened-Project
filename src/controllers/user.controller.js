@@ -3,6 +3,7 @@ const ApiError = require("../utils/ApiErrors.js")
 const User = require("../models/user.model.js")
 const uploadOnCloudinary = require("../utils/cloudinary.js")
 const ApiResponse = require('../utils/ApiResponse.js')
+const jwt = require('jsonwebtoken')
 
 
 const generateAccessAndREfreshTokens = async (userId) => {
@@ -91,15 +92,17 @@ const registerUser = asyncHandler(async (req, res) => {
      if(!avatar){
         throw new ApiError(400 , "Avatar file is required!!!")
      }
-
+ console.log("------------everything verified-------------")
     const user = await User.create({
         fullname,
-        avatar: avatar,//?.url || "",
+        avatar: avatar?.url,// || "",
         coverImage: coverImage?.url || "",
         email,
         password,
         username: username.toLowerCase()
     })
+
+    console.log("user created success")
 
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
@@ -125,14 +128,19 @@ const loginUser = asyncHandler(async (req, res) => {
     // send tokens in cookies 
 
     const { email, username, password } = req.body
-    if (!username || !email) {
-        throw new ApiError(400, "username or password is required")
+
+    // if (!username && !email) {     // if we need both for checking
+    //     throw new ApiError(400, "username and email is required")
+    // }
+  //heere it is an alternative of above code based on logic to be applied of to  be checking any one of them 
+   if (!(username || email)) {
+        throw new ApiError(400, "username or email is required")
     }
 
     const user = User.findOne({
         $or: [{ username }, { email }]
     })
-
+ 
     if (!user) {
         throw new ApiError(404, "User does not exist")
     }
@@ -195,5 +203,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
-module.exports = {registerUser, loginUser, logoutUser}
+
+
+module.exports = {registerUser, loginUser, logoutUser, refreshAccessToken}
 //exports = registerUser 
