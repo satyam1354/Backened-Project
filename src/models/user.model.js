@@ -57,15 +57,18 @@ const userSchema = new mongoose.Schema(
 //pre hooks runs jsut before user schema
 userSchema.pre("save",async function(next){
     if(!this.isModified("password")) return next();
+
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
-userSchema.methods.isPasswordCorrect  = async function
-(password){
-    return await bcrypt.compare(password , this.password)   //t  ya f
-}
+//true  ya false
+userSchema.methods.isPasswordCorrect = async function(password){
 
+    return await bcrypt.compare(password, this.password)
+}  
+    
+    
 userSchema.methods.generateAccessToken = function(){
    return jwt.sign(
         {

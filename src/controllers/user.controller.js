@@ -5,18 +5,23 @@ const uploadOnCloudinary = require("../utils/cloudinary.js")
 const ApiResponse = require('../utils/ApiResponse.js')
 const jwt = require('jsonwebtoken')
 
+const mongoose = require("mongoose")
+//const bcrypt = require('bcrypt')
 
-const generateAccessAndREfreshTokens = async (userId) => {
+
+const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
+        //console.log(user)
+
 
         user.refreshToken = refreshToken  //saving refresh token in db
         await user.save({ validateBeforeSave: false })
 
         return (accessToken, refreshToken)
-
+ 
 
     } catch (error) {
         throw new ApiError(500, "something went wrong while generating refresh and access token")
@@ -128,6 +133,7 @@ const loginUser = asyncHandler(async (req, res) => {
     // send tokens in cookies 
 
     const { email, username, password } = req.body
+       
 
     // if (!username && !email) {     // if we need both for checking
     //     throw new ApiError(400, "username and email is required")
@@ -137,25 +143,31 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "username or email is required")
     }
 
-    const user = User.findOne({
+    const user = await User.findOne({   //findOne() method returns a query, not the actual user document. You need to await the execution of the query to get the user document.
         $or: [{ username }, { email }]
     })
+       // console.log(user)   // it should not be in query format but in document format(user document )
+
  
     if (!user) {
         throw new ApiError(404, "User does not exist")
     }
-
-    const isPasswordValid = await user.isPasswordCorrect(password)
+ 
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    console.log("pass: " ,isPasswordValid)
 
 
     if (!isPasswordValid) {
-        throw new ApiError(401, "Invalid user credential ,password")
+        throw new ApiError(401, "Invalid user credential -> password")
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndREfreshTokens(user._id)
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id)
+    console.log(accessToken, refreshToken)  //?undefined
 
+ 
     const loggedInUser = await User.findById(user._id).
         select("-password -refreshToken")
+
 
     const options = {
         httpOnly: true,
@@ -176,7 +188,7 @@ const loginUser = asyncHandler(async (req, res) => {
                 "User logged in successfully"
             )
         )
-})
+}) 
 
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
