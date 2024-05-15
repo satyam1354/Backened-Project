@@ -17,6 +17,9 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
         user.refreshToken = refreshToken  //saving refresh token in db
         await user.save({ validateBeforeSave: false })
+        
+        // console.log("accessToken: ",accessToken)
+        // console.log("refreshtoken:  ", refreshToken)
 
         return {accessToken, refreshToken}
  
@@ -215,42 +218,55 @@ const logoutUser = asyncHandler(async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler(async (req, res)=>{
+    console.log("-------------------refreshAccessToken ------------------")
+
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
     if(!incomingRefreshToken){
       throw new ApiError(401, "unauthorised request")
     }
-   
+    // console.log("incomingRefreshToken: ",incomingRefreshToken)
+
+    
     try {
         const decodedToken = jwt.verify(
             incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET
         )
-    
+        // console.log("decodedToken: ",decodedToken)
+
         const user = await User.findById(decodedToken?._id)
     
         if(!user) {
             throw new ApiError(401, "invalid  refresh token")
         }
-    
+
         if(incomingRefreshToken !== user?.refreshToken) {
             throw new ApiError(401, "Refresh token is expired or used")
         }
     
-        const options ={
+        const options = {
             httpOnly: true,
             secure: true
         }
     
-        const {accessToken, newrefreshToken} = await generateAccessAndREfreshTokens(user._id)
-       
+        const {accessToken, newrefreshToken} = await generateAccessAndRefreshTokens(user._id)
+        console.log("accessToken: ",accessToken)
+        console.log("newrefreshToken: ",newrefreshToken)   //?undefined
+        //console.log("refreshToken: ",refreshToken) //newrefreshToken is giving undefined value but putting refreshToken in place of newrefreshToken it is giving
+                 //value of refreshToken which is passed by the function ....
+                 // by changing --refreshToken-- in place of --newrefreshToken-- it works correctly
+
+
         return res
         .status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", newrefreshToken, options)
+        //.cookie("refreshToken", refreshToken, options)
         .json(
-             new ApiResponse(
+             new ApiResponse( 
                 200,
                 {accessToken, refreshToken: newrefreshToken},
+                //{accessToken, refreshToken: refreshToken},
                 "Access token refreshed"
              )
         )
