@@ -14,15 +14,12 @@ const generateAccessAndRefreshTokens = async (userId) => {
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
-        //console.log(user)
-
 
         user.refreshToken = refreshToken  //saving refresh token in db
         await user.save({ validateBeforeSave: false })
 
-        return (accessToken, refreshToken)
+        return {accessToken, refreshToken}
  
-
     } catch (error) {
         throw new ApiError(500, "something went wrong while generating refresh and access token")
     }
@@ -133,7 +130,7 @@ const loginUser = asyncHandler(async (req, res) => {
     // send tokens in cookies 
 
     const { email, username, password } = req.body
-       
+       console.log(username)
 
     // if (!username && !email) {     // if we need both for checking
     //     throw new ApiError(400, "username and email is required")
@@ -162,7 +159,8 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id)
-    console.log(accessToken, refreshToken)  //?undefined
+      // console.log("accessToken: ",accessToken)
+      // console.log("refreshtoken:  ", refreshToken)
 
  
     const loggedInUser = await User.findById(user._id).
@@ -191,6 +189,7 @@ const loginUser = asyncHandler(async (req, res) => {
 }) 
 
 const logoutUser = asyncHandler(async (req, res) => {
+    //console.log(req.cookies)
     await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -207,7 +206,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         httpOnly: true,
         secure: true
     }
-
+ 
     return res
     .status(200)
     .clearCookie("accessToken", options)

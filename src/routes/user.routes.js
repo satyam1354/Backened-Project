@@ -29,6 +29,6 @@ router.route("/logout").post(verifyJWT, logoutUser)
 
 //write an article on what is difference bw access token and refresh token
 // on hashnode platform
-//router.route("/refresh-token").post(refreshAccessToken)
+router.route("/refresh-token").post(refreshAccessToken)
 
 module.exports = router 
