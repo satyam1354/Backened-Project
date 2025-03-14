@@ -1,14 +1,14 @@
 const express = require("express")
-const router = express.Router() 
-const {registerUser, 
-    logoutUser, 
-    loginUser, 
-    refreshAccessToken, 
-    getCurrentUser, 
-    updateUserCoverImage, 
-    getUserChannelProfile, 
-    getWatchHistory, 
-    changeCurrentPasword, 
+const router = express.Router()
+const {registerUser,
+    logoutUser,
+    loginUser,
+    refreshAccessToken,
+    getCurrentUser,
+    updateUserCoverImage,
+    getUserChannelProfile,
+    getWatchHistory,
+    changeCurrentPasword,
     updateAccountDetails,
      updateUserAvatar} = require("../controllers/user.controller.js") 
 
